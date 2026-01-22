@@ -45,4 +45,20 @@ namespace GameItems
 		UE_DEFINE_GAMEPLAY_TAG(Daisy, "GameItems.Craftables.Daisy")
 		UE_DEFINE_GAMEPLAY_TAG(Blossom, "GameItems.Craftables.Blossom")
 	}
+	
+	namespace Research
+	{
+		namespace Consumables
+		{
+			UE_DEFINE_GAMEPLAY_TAG(HealthPotionSmall, "Research.Consumables.HealthPotionSmall")
+			UE_DEFINE_GAMEPLAY_TAG(HealthPotionLarge, "Research.Consumables.HealthPotionLarge")
+			UE_DEFINE_GAMEPLAY_TAG(ManaPotionSmall, "Research.Consumables.ManaPotionSmall")
+			UE_DEFINE_GAMEPLAY_TAG(ManaPotionLarge, "Research.Consumables.ManaPotionLarge")
+		 }
+	}
+	
+	namespace FragmentTags
+	{
+		UE_DEFINE_GAMEPLAY_TAG(Research, "FragmentTags.Research")
+	}
 }

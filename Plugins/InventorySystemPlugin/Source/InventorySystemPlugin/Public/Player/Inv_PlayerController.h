@@ -10,6 +10,10 @@ class UInv_InventoryComponent;
 class UInv_HUDWidget;
 class UInputMappingContext;
 class UInputAction;
+class UInv_ResearchComponent;
+class UInv_CombinationComponent;
+class UInv_CombinationWidget;
+class UInv_JournalWidget;
 
 UCLASS()
 class INVENTORYSYSTEMPLUGIN_API AInv_PlayerController : public APlayerController
@@ -22,6 +26,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void ToggleInventory();
+	
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ToggleCombinationMenu();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ToggleJournal();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -42,6 +52,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	TObjectPtr<UInputAction> ToggleInventoryAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	TObjectPtr<UInputAction> ToggleCombinationMenuAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	TObjectPtr<UInputAction> ToggleJournalAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	TSubclassOf<UInv_HUDWidget> HUDWidgetClass;
@@ -57,4 +73,19 @@ private:
 
 	TWeakObjectPtr<AActor> CurrentActor;
 	TWeakObjectPtr<AActor> LastActor;
+	
+	TWeakObjectPtr<UInv_ResearchComponent> ResearchComponent;
+	TWeakObjectPtr<UInv_CombinationComponent> CombinationComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UInv_CombinationWidget> CombinationWidget;
+
+	UPROPERTY()
+	TObjectPtr<UInv_JournalWidget> JournalWidget;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UInv_CombinationWidget> CombinationWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UInv_JournalWidget> JournalWidgetClass;
 };

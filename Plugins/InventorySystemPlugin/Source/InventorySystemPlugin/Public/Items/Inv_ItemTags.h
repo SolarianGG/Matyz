@@ -39,6 +39,11 @@ namespace GameItems
 				UE_DECLARE_GAMEPLAY_TAG_EXTERN(Large)
 			}
 		}
+		
+		namespace Plant
+		{
+			
+		}
 	}
 
 	namespace Craftables
@@ -46,5 +51,33 @@ namespace GameItems
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(Fruit)
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(Daisy)
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(Blossom)
+		
+		// Plants for the Research
+		namespace Plant
+		{
+			UE_DECLARE_GAMEPLAY_TAG_EXTERN(BasicGrass)
+			UE_DECLARE_GAMEPLAY_TAG_EXTERN(BasicGrass)
+		}
+	}
+	
+	namespace Research
+	{
+		namespace Consumables
+		{
+			UE_DECLARE_GAMEPLAY_TAG_EXTERN(HealthPotionSmall)
+			UE_DECLARE_GAMEPLAY_TAG_EXTERN(HealthPotionLarge)
+			UE_DECLARE_GAMEPLAY_TAG_EXTERN(ManaPotionSmall)
+			UE_DECLARE_GAMEPLAY_TAG_EXTERN(ManaPotionLarge)
+		 }
+		
+		namespace Plant
+		{
+			
+		}
+	}
+	
+	namespace FragmentTags
+	{
+		UE_DECLARE_GAMEPLAY_TAG_EXTERN(Research)
 	}
 }

@@ -1,7 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Widgets/Inventory/Spatial/Inv_InventoryGrid.h"
-
 #include "InventorySystemPlugin.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanel.h"
@@ -18,6 +17,8 @@
 #include "Widgets/Inventory/HoverItem/Inv_HoverItem.h"
 #include "Widgets/Inventory/SlottedItems/Inv_SlottedItem.h"
 #include "Widgets/PopUp/Inv_ItemPopUp.h"
+#include "Research/Inv_ResearchComponent.h"
+#include "Research/Inv_CombinationComponent.h"
 
 void UInv_InventoryGrid::NativeOnInitialized()
 {
@@ -733,6 +734,10 @@ void UInv_InventoryGrid::CreateItemPopUp(const int32 GridIndex)
 	ItemPopUp = CreateWidget<UInv_ItemPopUp>(this, ItemPopUpClass);
 	GridSlots[GridIndex]->SetItemPopUp(ItemPopUp);
 
+	// NEW: Set the item for visibility checks
+	ItemPopUp->SetItem(RightClickedItem);
+	ItemPopUp->SetGridIndex(GridIndex);
+
 	OwningCanvasPanel->AddChild(ItemPopUp);
 	UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(ItemPopUp);
 	const FVector2D MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetOwningPlayer());
@@ -760,6 +765,10 @@ void UInv_InventoryGrid::CreateItemPopUp(const int32 GridIndex)
 	{
 		ItemPopUp->CollapseConsumeButton();
 	}
+
+	// NEW: Bind research and combine delegates
+	ItemPopUp->OnResearch.BindDynamic(this, &ThisClass::OnPopUpMenuResearch);
+	ItemPopUp->OnCombine.BindDynamic(this, &ThisClass::OnPopUpMenuCombine);
 }
 
 void UInv_InventoryGrid::PutHoverItemBack()
@@ -1087,4 +1096,66 @@ void UInv_InventoryGrid::OnInventoryMenuToggled(bool bOpen)
 bool UInv_InventoryGrid::MatchesCategory(const UInv_InventoryItem* Item) const
 {
 	return Item->GetItemManifest().GetItemCategory() == ItemCategory;
+}
+
+void UInv_InventoryGrid::OnPopUpMenuResearch(int32 Index)
+{
+	UInv_InventoryItem* RightClickedItem = GridSlots[Index]->GetInventoryItem().Get();
+	if (!IsValid(RightClickedItem))
+		return;
+
+	APlayerController* PC = GetOwningPlayer();
+	if (!IsValid(PC))
+		return;
+
+	UInv_ResearchComponent* ResearchComp = PC->FindComponentByClass<UInv_ResearchComponent>();
+	if (!IsValid(ResearchComp))
+		return;
+
+	ResearchComp->ResearchItem(RightClickedItem);
+}
+
+void UInv_InventoryGrid::OnPopUpMenuCombine(int32 Index)
+{
+	UInv_InventoryItem* RightClickedItem = GridSlots[Index]->GetInventoryItem().Get();
+	if (!IsValid(RightClickedItem))
+		return;
+
+	APlayerController* PC = GetOwningPlayer();
+	if (!IsValid(PC))
+		return;
+
+	UInv_CombinationComponent* CombineComp = PC->FindComponentByClass<UInv_CombinationComponent>();
+	if (!IsValid(CombineComp))
+		return;
+
+	// Find first empty slot
+	int32 SlotIndex = -1;
+	if (CombineComp->GetItemInSlot(0) == nullptr)
+	{
+		SlotIndex = 0;
+	}
+	else if (CombineComp->GetItemInSlot(1) == nullptr)
+	{
+		SlotIndex = 1;
+	}
+
+	if (SlotIndex != -1)
+	{
+		CombineComp->AddItemToSlot(RightClickedItem, SlotIndex);
+		
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, 
+				FString::Printf(TEXT("Added to combination slot %d"), SlotIndex));
+		}
+	}
+	else
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, 
+				TEXT("Both combination slots are full! Clear them first."));
+		}
+	}
 }

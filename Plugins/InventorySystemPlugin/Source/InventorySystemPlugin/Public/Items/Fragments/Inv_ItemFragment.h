@@ -253,3 +253,39 @@ private:
 	FGameplayTag EquipmentTag = FGameplayTag::EmptyTag;
 	
 };
+
+USTRUCT(BlueprintType)
+struct FInv_ResearchFragment : public FInv_ItemFragment
+{
+	GENERATED_BODY()
+	
+	bool IsResearched() const { return bIsResearched; }
+	void SetResearched(bool bResearched) { bIsResearched = bResearched; }
+	
+	FText GetCurrentDescription() const
+	{
+		return bIsResearched ? ResearchedDescription : UnresearchedDescription;
+	}
+	
+	FGameplayTag GetResearchID() const { return ResearchID; }
+	
+	virtual void Manifest() override
+	{
+		FInv_ItemFragment::Manifest();
+		
+		bIsResearched = false;
+	}
+	
+private:
+	UPROPERTY(EditAnywhere, Category = "Research")
+	bool bIsResearched{false};
+	
+	UPROPERTY(EditAnywhere, Category = "Research")
+	FText UnresearchedDescription{FText::FromString("???")};
+	
+	UPROPERTY(EditAnywhere, Category = "Research")
+	FText ResearchedDescription;
+	
+	UPROPERTY(EditAnywhere, Category = "Research", meta = (Categories = "Research"))
+	FGameplayTag ResearchID;
+};

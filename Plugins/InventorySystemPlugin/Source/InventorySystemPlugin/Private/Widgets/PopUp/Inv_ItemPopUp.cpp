@@ -5,6 +5,11 @@
 #include "Components/SizeBox.h"
 #include "Components/Slider.h"
 #include "Components/TextBlock.h"
+#include "Items/Inv_InventoryItem.h"
+#include "Items/Fragments/Inv_ItemFragment.h"
+#include "Research/Inv_ResearchComponent.h"
+#include "Research//Inv_CombinationComponent.h"
+#include "GameFramework/PlayerController.h"
 
 void UInv_ItemPopUp::NativeOnInitialized()
 {
@@ -13,6 +18,8 @@ void UInv_ItemPopUp::NativeOnInitialized()
 	Button_Split->OnClicked.AddDynamic(this, &ThisClass::SplitButtonClicked);
 	Button_Drop->OnClicked.AddDynamic(this, &ThisClass::DropButtonClicked);
 	Button_Consume->OnClicked.AddDynamic(this, &ThisClass::ConsumeButtonClicked);
+	Button_Research->OnClicked.AddDynamic(this, &ThisClass::ResearchButtonClicked);
+	Button_Combine->OnClicked.AddDynamic(this, &ThisClass::CombineButtonClicked);
 	Slider_Split->OnValueChanged.AddDynamic(this, &ThisClass::SliderValueChanged);
 }
 
@@ -26,6 +33,41 @@ void UInv_ItemPopUp::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 int32 UInv_ItemPopUp::GetSplitAmount() const
 {
 	return FMath::Floor(Slider_Split->GetValue());
+}
+
+void UInv_ItemPopUp::SetItem(UInv_InventoryItem* Item)
+{
+	CurrentItem = Item;
+	UpdateButtonVisibility();
+}
+
+void UInv_ItemPopUp::UpdateButtonVisibility()
+{
+	APlayerController* PC = GetOwningPlayer();
+	if (!IsValid(PC) || !IsValid(CurrentItem))
+		return;
+
+	// Check research availability
+	UInv_ResearchComponent* ResearchComp = PC->FindComponentByClass<UInv_ResearchComponent>();
+	if (IsValid(ResearchComp) && ResearchComp->CanResearchItem(CurrentItem))
+	{
+		Button_Research->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		Button_Research->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	// Check combination availability
+	UInv_CombinationComponent* CombineComp = PC->FindComponentByClass<UInv_CombinationComponent>();
+	if (IsValid(CombineComp) && CombineComp->CanCombine())
+	{
+		Button_Combine->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		Button_Combine->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void UInv_ItemPopUp::SplitButtonClicked()
@@ -52,6 +94,22 @@ void UInv_ItemPopUp::ConsumeButtonClicked()
 	}
 }
 
+void UInv_ItemPopUp::ResearchButtonClicked()
+{
+	if (OnResearch.ExecuteIfBound(GridIndex))
+	{
+		RemoveFromParent();
+	}
+}
+
+void UInv_ItemPopUp::CombineButtonClicked()
+{
+	if (OnCombine.ExecuteIfBound(GridIndex))
+	{
+		RemoveFromParent();
+	}
+}
+
 void UInv_ItemPopUp::SliderValueChanged(float Value)
 {
 	Text_SplitAmount->SetText(FText::AsNumber(FMath::Floor(Value)));
@@ -67,6 +125,16 @@ void UInv_ItemPopUp::CollapseSplitButton() const
 void UInv_ItemPopUp::CollapseConsumeButton() const
 {
 	Button_Consume->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UInv_ItemPopUp::CollapseResearchButton() const
+{
+	Button_Research->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UInv_ItemPopUp::CollapseCombineButton() const
+{
+	Button_Combine->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UInv_ItemPopUp::SetSliderParameters(const float Max, const float Value) const

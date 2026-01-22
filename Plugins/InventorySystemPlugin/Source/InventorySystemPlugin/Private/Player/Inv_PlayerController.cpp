@@ -9,6 +9,10 @@
 #include "InventoryManagement/Components/Inv_InventoryComponent.h"
 #include "Items/Components/Inv_ItemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Research/Inv_CombinationComponent.h"
+#include "Research/Inv_ResearchComponent.h"
+#include "Widgets/Combination/Inv_CombinationWidget.h"
+#include "Widgets/Combination/Inv_JournalWidget.h"
 
 AInv_PlayerController::AInv_PlayerController()
 {
@@ -56,6 +60,8 @@ void AInv_PlayerController::BeginPlay()
 	}
 
 	InventoryComponent = FindComponentByClass<UInv_InventoryComponent>();
+	ResearchComponent = FindComponentByClass<UInv_ResearchComponent>();
+	CombinationComponent = FindComponentByClass<UInv_CombinationComponent>();
 
 	CreateHUDWidget();
 }
@@ -68,6 +74,8 @@ void AInv_PlayerController::SetupInputComponent()
 
 	EnhancedInputComponent->BindAction(PrimaryInteractAction, ETriggerEvent::Started, this, &ThisClass::PrimaryInteract);
 	EnhancedInputComponent->BindAction(ToggleInventoryAction, ETriggerEvent::Started, this, &ThisClass::ToggleInventory);
+	EnhancedInputComponent->BindAction(ToggleCombinationMenuAction, ETriggerEvent::Started, this, &ThisClass::ToggleCombinationMenu);
+	EnhancedInputComponent->BindAction(ToggleJournalAction, ETriggerEvent::Started, this, &ThisClass::ToggleJournal);
 }
 
 void AInv_PlayerController::PrimaryInteract()
@@ -152,6 +160,72 @@ void AInv_PlayerController::TraceForItem()
 		if (UActorComponent* Highlight = LastActor->FindComponentByInterface(UInv_Highlight::StaticClass()); IsValid(Highlight))
 		{
 			IInv_Highlight::Execute_UnHighlight(Highlight);
+		}
+	}
+}
+
+void AInv_PlayerController::ToggleCombinationMenu()
+{
+	if (!CombinationComponent.IsValid() || !CombinationComponent->CanCombine())
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, 
+				TEXT("You need to be near a combination table!"));
+		}
+		return;
+	}
+
+	if (!IsValid(CombinationWidget))
+	{
+		CombinationWidget = CreateWidget<UInv_CombinationWidget>(this, CombinationWidgetClass);
+		if (IsValid(CombinationWidget))
+		{
+			CombinationWidget->AddToViewport();
+			
+			FInputModeGameAndUI InputMode;
+			SetInputMode(InputMode);
+			SetShowMouseCursor(true);
+		}
+	}
+	else
+	{
+		CombinationWidget->RemoveFromParent();
+		CombinationWidget = nullptr;
+		
+		if (!InventoryComponent.IsValid() || !InventoryComponent->IsMenuOpen())
+		{
+			FInputModeGameOnly InputMode;
+			SetInputMode(InputMode);
+			SetShowMouseCursor(false);
+		}
+	}
+}
+
+void AInv_PlayerController::ToggleJournal()
+{
+	if (!IsValid(JournalWidget))
+	{
+		JournalWidget = CreateWidget<UInv_JournalWidget>(this, JournalWidgetClass);
+		if (IsValid(JournalWidget))
+		{
+			JournalWidget->AddToViewport();
+			
+			FInputModeGameAndUI InputMode;
+			SetInputMode(InputMode);
+			SetShowMouseCursor(true);
+		}
+	}
+	else
+	{
+		JournalWidget->RemoveFromParent();
+		JournalWidget = nullptr;
+		
+		if (!InventoryComponent.IsValid() || !InventoryComponent->IsMenuOpen())
+		{
+			FInputModeGameOnly InputMode;
+			SetInputMode(InputMode);
+			SetShowMouseCursor(false);
 		}
 	}
 }

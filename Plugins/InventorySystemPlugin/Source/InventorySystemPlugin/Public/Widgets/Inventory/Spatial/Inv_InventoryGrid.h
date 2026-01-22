@@ -189,6 +189,13 @@ private:
 	UFUNCTION()
 	void OnPopUpMenuConsume(int32 Index);
 
+	// NEW: Research and Combine handlers
+	UFUNCTION()
+	void OnPopUpMenuResearch(int32 Index);
+
+	UFUNCTION()
+	void OnPopUpMenuCombine(int32 Index);
+
 	UFUNCTION()
 	void OnInventoryMenuToggled(bool bOpen);
 	
