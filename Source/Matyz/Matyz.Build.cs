@@ -8,7 +8,16 @@ public class Matyz : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core",
+			"CoreUObject",
+			"Engine",
+			"InputCore",
+			"EnhancedInput",
+			"UMG",
+			"InventorySystemPlugin"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 		
@@ -17,7 +26,7 @@ public class Matyz : ModuleRules
 			"Matyz/Public",
 			"Matyz/Public/Player",
 			"Matyz/Public/Player/Components",
-			"Matyz/Public/Components",
+			"Matyz/Public/Components"
 		});
 
 		// Uncomment if you are using Slate UI

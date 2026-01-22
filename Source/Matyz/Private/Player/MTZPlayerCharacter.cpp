@@ -10,6 +10,7 @@ AMTZPlayerCharacter::AMTZPlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
+
 void AMTZPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
